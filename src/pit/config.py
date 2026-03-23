@@ -1,0 +1,1 @@
+PIT_DIRECTORY_NAME = ".pit"
