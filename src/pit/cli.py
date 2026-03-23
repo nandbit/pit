@@ -29,8 +29,8 @@ class Parser:
         )
         subparsers = parser.add_subparsers(dest="command")
 
-        parser_init = subparsers.add_parser("init")
-        parser_init.add_argument(
+        init_parser = subparsers.add_parser("init")
+        init_parser.add_argument(
             dest="init_dest",
             help="Specify the name of the repository to initialize.",
             type=str,
