@@ -13,8 +13,14 @@ class Parser:
 
     def _parse_command(self, args: argparse.Namespace) -> Command:
         if args.command == "init":
-            command_args = InitCommandArgs(args.init_dest)
+            command_args = InitCommandArgs(target=args.init_dest)
             return InitCommand(command_args)
+        if args.command == "hash-object":
+            command_args = HashObjectCommandArgs(
+                target=args.init_dest,
+                write=args.write_hash_object,
+            )
+            return HashObjectCommand(command_args)
 
     def _setup_parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(
