@@ -38,8 +38,21 @@ class InitCommand(Command):
         self._args = args
 
     def execute(self) -> None:
-        # Create a .pit directory
-        pit_path = os.path.join(os.getcwd(), PIT_DIRECTORY_NAME)
+        cwd = os.getcwd()
+        base_path = cwd
+
+        # Create the repo folder if named
+        repo_name = self._args.target
+        if repo_name:
+            try:
+                os.mkdir(repo_name)
+            except FileExistsError as e:
+                raise CommandExecutionError(f"Error during command execution: {e}")
+            except FileNotFoundError as e:
+                raise CommandExecutionError(f"Error during command execution: {e}")
+            base_path = os.path.join(cwd, repo_name)
+        pit_path = os.path.join(base_path, PIT_DIRECTORY_NAME)
+
 
         try:
             os.mkdir(pit_path)
@@ -77,6 +90,7 @@ class HashObjectCommand(Command):
             return f.read()
 
     def construct_header(self, content: str, content_type: str = "blob") -> str:
+        # Content type can be blob, tree, commit, tag
         content_len = len(content.encode("utf-8"))
         header = f"{content_type} {content_len}\0"
 
