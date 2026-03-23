@@ -18,5 +18,16 @@ class Parser:
             prog="pit",
             description="A toy implementation of a subset of git.",
         )
+        subparsers = parser.add_subparsers()
+
+        parser_init = subparsers.add_parser("init")
+        parser_init.add_argument(
+            dest="init_dest",
+            help="Specify the name of the repository to initialize.",
+            type=str,
+            nargs="?",
+            default=".",
+            action="store",
+        )
 
         return parser
