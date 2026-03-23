@@ -2,7 +2,6 @@ import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
-import hashlib
 
 from pit.config import PIT_DIRECTORY_NAME
 from pit.errors import CommandExecutionError
@@ -69,16 +68,16 @@ class HashObjectCommand(Command):
         content = extract_file_content(target)
         header = contrust_header(content_type, content)
         store = header + content
-        
+
         # try:
         #     raise CommandExecutionError(f"Error during command execution: hash-object target does not exist.")
 
     def extract_file_content(self, target: str) -> str:
-        with open(target, 'r', encoding='utf-8') as f:
+        with open(target, "r", encoding="utf-8") as f:
             return f.read()
 
     def construct_header(self, content: str, content_type: str = "blob") -> str:
-        content_len = len(content.encode('utf-8'))
+        content_len = len(content.encode("utf-8"))
         header = f"{content_type} {content_len}\0"
 
         return header
