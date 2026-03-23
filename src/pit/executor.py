@@ -1,3 +1,5 @@
+from pit.commands import Command
+
 from .cli import Parser
 
 
@@ -6,5 +8,5 @@ class Executor:
         self._parser = Parser()
 
     def run(self) -> None:
-        args = self._parser.parse()
-        print(args)
+        command: Command = self._parser.parse_command()
+        command.execute()

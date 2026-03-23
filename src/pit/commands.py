@@ -1,15 +1,9 @@
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional
 
 from pit.config import PIT_DIRECTORY_NAME
-
-
-class CommandType(Enum):
-    INIT = "init"
-    HASH_OBJECT = "hash-object"
 
 
 @dataclass
@@ -34,10 +28,6 @@ class Command(ABC):
 
     @abstractmethod
     def execute(self) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def check_args(self) -> None:
         raise NotImplementedError
 
 
