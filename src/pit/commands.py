@@ -14,13 +14,14 @@ class CommandArgs(ABC):
 
 @dataclass
 class InitCommandArgs(CommandArgs):
-    target: Optional[str]
+    target: Optional[str] = None
 
 
 @dataclass
 class HashObjectCommandArgs(CommandArgs):
     target: str
-    write: bool
+    write: Optional[bool] = None
+    content_type: Optional[str] = None
 
 
 class Command(ABC):
@@ -52,7 +53,6 @@ class InitCommand(Command):
                 raise CommandExecutionError(f"Error during command execution: {e}")
             base_path = os.path.join(cwd, repo_name)
         pit_path = os.path.join(base_path, PIT_DIRECTORY_NAME)
-
 
         try:
             os.mkdir(pit_path)
