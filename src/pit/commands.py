@@ -1,5 +1,6 @@
 import hashlib
 import os
+import zlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
@@ -81,20 +82,44 @@ class HashObjectCommand(Command):
         if self._args.stdin:
             content = self._args.target
         else:
-            content = self.extract_file_content(self._args.target)
+            content = self._extract_file_content(self._args.target)
 
-        header = self.construct_header(content, self._args.content_type)
+        # Create hash
+        hash = self._create_hash(
+            content,
+            self._args.content_type,
+            self._args.stdin,
+        )
+
+        if not self._args.write:
+            return hash
+
+        # Create file to write to
+        objects_dir = os.path.join(PIT_DIRECTORY_NAME, "objects")
+        file_dir = os.path.join(objects_dir, hash[:2])
+        filepath = os.path.join(objects_dir, file_dir)
+
+        # Compress contents and write
+        compressed_content = zlib.compress(content)
+
+        with open(filepath, "w") as f:
+            f.write(compressed_content)
+
+        return hash
+
+    def _create_hash(self, content, content_type: str, stdin: bool) -> str:
+        header = self._construct_header(content, content_type)
         store = header + content
         h = hashlib.sha1()
         h.update(bytes(store, encoding="utf-8"))
 
         return h.hexdigest()[:40]
 
-    def extract_file_content(self, target: str) -> str:
+    def _extract_file_content(self, target: str) -> str:
         with open(target, "r", encoding="utf-8") as f:
             return f.read()
 
-    def construct_header(self, content: str, content_type: str) -> str:
+    def _construct_header(self, content: str, content_type: str) -> str:
         # Content type can be blob, tree, commit, tag
         content_len = len(content.encode("utf-8"))
         header = f"{content_type} {content_len}\0"
