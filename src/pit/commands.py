@@ -97,12 +97,20 @@ class HashObjectCommand(Command):
         # Create file to write to
         objects_dir = os.path.join(PIT_DIRECTORY_NAME, "objects")
         file_dir = os.path.join(objects_dir, hash[:2])
-        filepath = os.path.join(objects_dir, file_dir)
+        filepath = os.path.join(file_dir, hash[2:])
+
+        # Create the subdirectory in objects directory
+        try:
+            os.mkdir(file_dir)
+        except FileExistsError as e:
+            raise CommandExecutionError(f"Error during command execution: {e}")
+        except FileNotFoundError as e:
+            raise CommandExecutionError(f"Error during command execution: {e}")
 
         # Compress contents and write
-        compressed_content = zlib.compress(content)
+        compressed_content = zlib.compress(content.encode('utf-8'))
 
-        with open(filepath, "w") as f:
+        with open(filepath, "wb") as f:
             f.write(compressed_content)
 
         return hash

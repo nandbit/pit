@@ -45,7 +45,9 @@ def test_hash_file(tmp_path):
     assert result == correct_result
 
 
-def test_hash_string_write(empty_objects_dir):
+def test_hash_string_write(tmp_path, empty_objects_dir, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
     args = HashObjectCommandArgs(
         target="test content",
         write=True,
@@ -56,10 +58,11 @@ def test_hash_string_write(empty_objects_dir):
     result = command.execute()
     correct_result = "08cf6101416f0ce0dda3c80e627f333854c4085c"
 
-    created_file_path = os.join(
+    created_file_path = os.path.join(
         empty_objects_dir,
         "08/cf6101416f0ce0dda3c80e627f333854c4085c",
     )
+
 
     assert result == correct_result
     assert os.path.exists(created_file_path)
