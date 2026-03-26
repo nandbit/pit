@@ -63,7 +63,6 @@ def test_hash_string_write(tmp_path, empty_objects_dir, monkeypatch):
         "08/cf6101416f0ce0dda3c80e627f333854c4085c",
     )
 
-
     assert result == correct_result
     assert os.path.exists(created_file_path)
     assert os.path.isfile(created_file_path)
