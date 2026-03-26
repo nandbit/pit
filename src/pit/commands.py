@@ -108,14 +108,14 @@ class HashObjectCommand(Command):
             raise CommandExecutionError(f"Error during command execution: {e}")
 
         # Compress contents and write
-        compressed_content = zlib.compress(content.encode('utf-8'))
+        compressed_content = zlib.compress(content.encode("utf-8"))
 
         with open(filepath, "wb") as f:
             f.write(compressed_content)
 
         return hash
 
-    def _create_hash(self, content, content_type: str, stdin: bool) -> str:
+    def _create_hash(self, content: str, content_type: str, stdin: bool) -> str:
         header = self._construct_header(content, content_type)
         store = header + content
         h = hashlib.sha1()

@@ -1,6 +1,13 @@
 import argparse
+import sys
 
-from pit.commands import Command, InitCommand, InitCommandArgs
+from pit.commands import (
+    Command,
+    HashObjectCommand,
+    HashObjectCommandArgs,
+    InitCommand,
+    InitCommandArgs,
+)
 
 
 class Parser:
@@ -16,10 +23,25 @@ class Parser:
             command_args = InitCommandArgs(target=args.init_dest)
             return InitCommand(command_args)
         if args.command == "hash-object":
-            command_args = HashObjectCommandArgs(
-                target=args.init_dest,
-                write=args.write_hash_object,
-            )
+            if args.hash_object_stdin:
+                content = sys.stdin.read()
+                if not content:
+                    print(
+                        "Input must be provided when using the --stdin option for hash-object command."
+                    )
+                    sys.exit(1)
+                command_args = HashObjectCommandArgs(
+                    target=content,
+                    write=args.hash_object_write,
+                    stdin=args.hash_object_stdin,
+                )
+            else:
+                command_args = HashObjectCommandArgs(
+                    target=args.hash_object_target,
+                    write=args.hash_object_write,
+                    stdin=args.hash_object_stdin,
+                )
+
             return HashObjectCommand(command_args)
 
     def _setup_parser(self) -> argparse.ArgumentParser:
@@ -35,8 +57,28 @@ class Parser:
             help="Specify the name of the repository to initialize.",
             type=str,
             nargs="?",
-            default=".",
             action="store",
         )
 
+        hash_object_parser = subparsers.add_parser("hash-object")
+        hash_object_parser.add_argument(
+            dest="hash_object_target",
+            help="Content to hash.",
+            type=str,
+            nargs="?",
+            action="store",
+        )
+        hash_object_parser.add_argument(
+            "-w",
+            "--write",
+            dest="hash_object_write",
+            help="Whether to write the hashed object into the objects directory.",
+            action="store_true",
+        )
+        hash_object_parser.add_argument(
+            "--stdin",
+            dest="hash_object_stdin",
+            help="Whether the content to be hashed comes from stdin.",
+            action="store_true",
+        )
         return parser
