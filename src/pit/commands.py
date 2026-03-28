@@ -70,7 +70,13 @@ class InitCommand(Command):
             os.mkdir(objects_path)
         except FileExistsError as e:
             raise CommandExecutionError(f"Error during command execution: {e}")
-        except FileNotFoundError as e:
+
+        # Create .pit/index
+        index_path = os.path.join(pit_path, "index")
+        try:
+            with open(index_path, "w") as _:
+                pass
+        except OSError as e:
             raise CommandExecutionError(f"Error during command execution: {e}")
 
 

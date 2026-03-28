@@ -14,6 +14,7 @@ def test_init_no_target(tmp_path, monkeypatch):
 
     assert os.path.isdir(tmp_path / PIT_DIRECTORY_NAME)
     assert os.path.isdir(tmp_path / PIT_DIRECTORY_NAME / "objects")
+    assert os.path.isfile(tmp_path / PIT_DIRECTORY_NAME / "index")
 
 
 def test_init_target(tmp_path, monkeypatch):
@@ -26,3 +27,4 @@ def test_init_target(tmp_path, monkeypatch):
 
     assert os.path.isdir(tmp_path / "test" / PIT_DIRECTORY_NAME)
     assert os.path.isdir(tmp_path / "test" / PIT_DIRECTORY_NAME / "objects")
+    assert os.path.isfile(tmp_path / "test" / PIT_DIRECTORY_NAME / "index")
