@@ -7,6 +7,7 @@ from pit.commands import (
     HashObjectCommandArgs,
     InitCommand,
     InitCommandArgs,
+    UpdateIndexCommandArgs,
 )
 
 
@@ -23,7 +24,7 @@ class Parser:
             command_args = InitCommandArgs(target=args.init_dest)
 
             return InitCommand(command_args)
-        if args.command == "hash-object":
+        elif args.command == "hash-object":
             if args.hash_object_stdin:
                 content = sys.stdin.read()
                 if not content:
@@ -42,7 +43,14 @@ class Parser:
                     write=args.hash_object_write,
                     stdin=args.hash_object_stdin,
                 )
-
+        elif args.command == "update-index":
+            command_args = UpdateIndexCommandArgs(
+                oid=args.update_index_target,
+                filepath=args.update_index_filepath,
+                mode=args.update_index_mode,
+                add=args.update_index_add,
+                cacheinfo=args.update_index_cacheinfo,
+            )
             return HashObjectCommand(command_args)
 
     def _setup_parser(self) -> argparse.ArgumentParser:
@@ -52,6 +60,13 @@ class Parser:
         )
         subparsers = parser.add_subparsers(dest="command")
 
+        self._setup_init_parser(subparsers)
+        self._setup_hash_object_parser(subparsers)
+        self._setup_update_index_parser(subparsers)
+
+        return parser
+
+    def _setup_init_parser(self, subparsers: argparse._SubParsersAction) -> None:
         init_parser = subparsers.add_parser("init")
         init_parser.add_argument(
             dest="init_dest",
@@ -61,6 +76,7 @@ class Parser:
             action="store",
         )
 
+    def _setup_hash_object_parser(self, subparsers: argparse._SubParsersAction) -> None:
         hash_object_parser = subparsers.add_parser("hash-object")
         hash_object_parser.add_argument(
             dest="hash_object_target",
@@ -82,4 +98,16 @@ class Parser:
             help="Whether the content to be hashed comes from stdin.",
             action="store_true",
         )
-        return parser
+
+    def _setup_update_index_parser(
+        self, subparsers: argparse._SubParsersAction
+    ) -> None:
+        init_parser = subparsers.add_parser("update-index")
+        init_parser.add_argument(
+            "--add",
+            dest="update_index_target",
+            help="The blob hash of the file to add to the staging area.",
+            type=str,
+            nargs="?",
+            action="store",
+        )

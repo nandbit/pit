@@ -14,6 +14,15 @@ class CommandArgs(ABC):
     pass
 
 
+class Command(ABC):
+    def __init__(self, args: CommandArgs) -> None:
+        self._args = args
+
+    @abstractmethod
+    def execute(self) -> None:
+        raise NotImplementedError
+
+
 @dataclass
 class InitCommandArgs(CommandArgs):
     target: Optional[str] = None
@@ -27,13 +36,13 @@ class HashObjectCommandArgs(CommandArgs):
     content_type: Optional[str] = "blob"
 
 
-class Command(ABC):
-    def __init__(self, args: CommandArgs) -> None:
-        self._args = args
-
-    @abstractmethod
-    def execute(self) -> None:
-        raise NotImplementedError
+@dataclass
+class UpdateIndexCommandArgs(CommandArgs):
+    oid: str
+    filepath: str
+    mode: str
+    add: bool
+    cacheinfo: bool
 
 
 class InitCommand(Command):
@@ -141,3 +150,11 @@ class HashObjectCommand(Command):
         header = f"{content_type} {content_len}\0"
 
         return header
+
+
+class UpdateIndexCommand(Command):
+    def __init__(self, args: UpdateIndexCommandArgs) -> None:
+        self._args = args
+
+    def execute(self) -> None:
+        print("Updating index")
