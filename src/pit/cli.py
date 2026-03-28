@@ -21,6 +21,7 @@ class Parser:
     def _parse_command(self, args: argparse.Namespace) -> Command:
         if args.command == "init":
             command_args = InitCommandArgs(target=args.init_dest)
+
             return InitCommand(command_args)
         if args.command == "hash-object":
             if args.hash_object_stdin:

@@ -50,25 +50,23 @@ class InitCommand(Command):
         if repo_name:
             try:
                 os.mkdir(repo_name)
-            except FileExistsError as e:
-                raise CommandExecutionError(f"Error during command execution: {e}")
-            except FileNotFoundError as e:
+            except (FileExistsError, FileNotFoundError) as e:
                 raise CommandExecutionError(f"Error during command execution: {e}")
             base_path = os.path.join(cwd, repo_name)
+
+        # Create the .pit directory
         pit_path = os.path.join(base_path, PIT_DIRECTORY_NAME)
 
         try:
             os.mkdir(pit_path)
-        except FileExistsError as e:
-            raise CommandExecutionError(f"Error during command execution: {e}")
-        except FileNotFoundError as e:
+        except (FileExistsError, FileNotFoundError) as e:
             raise CommandExecutionError(f"Error during command execution: {e}")
 
-        # Objects subdir
+        # Create .pit/objects
         objects_path = os.path.join(pit_path, "objects")
         try:
             os.mkdir(objects_path)
-        except FileExistsError as e:
+        except (FileExistsError, FileNotFoundError) as e:
             raise CommandExecutionError(f"Error during command execution: {e}")
 
         # Create .pit/index
@@ -79,12 +77,16 @@ class InitCommand(Command):
         except OSError as e:
             raise CommandExecutionError(f"Error during command execution: {e}")
 
+        print(f"Successfully initialized a pit repository at {pit_path}")
+
 
 class HashObjectCommand(Command):
     def __init__(self, args: HashObjectCommandArgs) -> None:
         self._args = args
 
     def execute(self) -> None:
+        if not self._args.target:
+            return
         if self._args.stdin:
             content = self._args.target
         else:
