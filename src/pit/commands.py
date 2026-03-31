@@ -28,23 +28,6 @@ class InitCommandArgs(CommandArgs):
     target: Optional[str] = None
 
 
-@dataclass
-class HashObjectCommandArgs(CommandArgs):
-    target: str
-    write: Optional[bool] = False
-    stdin: Optional[bool] = False
-    content_type: Optional[str] = "blob"
-
-
-@dataclass
-class UpdateIndexCommandArgs(CommandArgs):
-    oid: str
-    filepath: str
-    mode: str
-    add: bool
-    cacheinfo: bool
-
-
 class InitCommand(Command):
     # Initialize a .pit directory
     def __init__(self, args: InitCommandArgs) -> None:
@@ -87,6 +70,14 @@ class InitCommand(Command):
             raise CommandExecutionError(f"Error during command execution: {e}")
 
         print(f"Successfully initialized a pit repository at {pit_path}")
+
+
+@dataclass
+class HashObjectCommandArgs(CommandArgs):
+    target: str
+    write: Optional[bool] = False
+    stdin: Optional[bool] = False
+    content_type: Optional[str] = "blob"
 
 
 class HashObjectCommand(Command):
@@ -152,9 +143,51 @@ class HashObjectCommand(Command):
         return header
 
 
+@dataclass
+class UpdateIndexCommandArgs(CommandArgs):
+    oid: Optional[str]
+    filepath: Optional[str]
+    mode: Optional[str]
+    add: Optional[bool]
+    cacheinfo: Optional[bool]
+
+
 class UpdateIndexCommand(Command):
     def __init__(self, args: UpdateIndexCommandArgs) -> None:
         self._args = args
 
     def execute(self) -> None:
-        print("Updating index")
+        # No args - simply return
+        if not any(
+            [
+                self._args.oid,
+                self._args.filepath,
+                self._args.mode,
+                self._args.add,
+                self._args.cacheinfo,
+            ]
+        ):
+            return
+
+        # pit update-index test.txt
+        # Check if the file exists in the index
+        index_filepath = os.path.join(PIT_DIRECTORY_NAME, "index")
+
+        with open(index_filepath, "rb") as f:
+            header = f.read(12)
+            num_index_entries = int.from_bytes(
+                bytes=header[8:12],
+                byteorder="big",
+            )
+            extension_signature = f.read(4)
+            extension_size = int.from_bytes(
+                bytes=f.read(4),
+                byteorder="big",
+            )
+            extension_data = f.read(extension_size)
+
+            # Now we're at the actual index entries
+            # They are alphabetically sorted by filename
+        # Check mtime to see if file content changed
+        # If it has, hash
+        # 1.

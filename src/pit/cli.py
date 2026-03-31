@@ -3,10 +3,10 @@ import sys
 
 from pit.commands import (
     Command,
-    HashObjectCommand,
     HashObjectCommandArgs,
     InitCommand,
     InitCommandArgs,
+    UpdateIndexCommand,
     UpdateIndexCommandArgs,
 )
 
@@ -45,13 +45,13 @@ class Parser:
                 )
         elif args.command == "update-index":
             command_args = UpdateIndexCommandArgs(
-                oid=args.update_index_target,
+                oid=args.update_index_oid,
                 filepath=args.update_index_filepath,
                 mode=args.update_index_mode,
                 add=args.update_index_add,
                 cacheinfo=args.update_index_cacheinfo,
             )
-            return HashObjectCommand(command_args)
+            return UpdateIndexCommand(command_args)
 
     def _setup_parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(
@@ -102,12 +102,38 @@ class Parser:
     def _setup_update_index_parser(
         self, subparsers: argparse._SubParsersAction
     ) -> None:
-        init_parser = subparsers.add_parser("update-index")
-        init_parser.add_argument(
-            "--add",
-            dest="update_index_target",
-            help="The blob hash of the file to add to the staging area.",
+        update_index_parser = subparsers.add_parser("update-index")
+
+        update_index_parser.add_argument(
+            dest="update_index_mode",
+            help="Mode of the file added to the index.",
             type=str,
             nargs="?",
             action="store",
+        )
+        update_index_parser.add_argument(
+            dest="update_index_oid",
+            help="Object ID of the file added to the index.",
+            type=str,
+            nargs="?",
+            action="store",
+        )
+        update_index_parser.add_argument(
+            dest="update_index_filepath",
+            help="Filepath of the file added to the index.",
+            type=str,
+            nargs="?",
+            action="store",
+        )
+        update_index_parser.add_argument(
+            "--add",
+            dest="update_index_add",
+            help="The blob hash of the file to add to the staging area.",
+            action="store_true",
+        )
+        update_index_parser.add_argument(
+            "--cacheinfo",
+            dest="update_index_cacheinfo",
+            help="The blob hash of the file to add to the staging area.",
+            action="store_true",
         )
